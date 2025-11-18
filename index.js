@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const port = 3000;
 const cors = require("cors");
@@ -35,6 +35,14 @@ async function run() {
         .toArray();
       res.send(result);
     });
+
+    app.get("/high-rating-food/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await foodCollection.findOne(query);
+      res.send(result);
+    });
+
     app.get("/review", async (req, res) => {
       const result = await reviewCollection
         .find()
@@ -55,7 +63,6 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-   
   }
 }
 run().catch(console.dir);
