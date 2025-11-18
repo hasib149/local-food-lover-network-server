@@ -23,6 +23,33 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
+
+    const db = client.db("LocalFood");
+    const foodCollection = db.collection("FoodDetails");
+    const reviewCollection = db.collection("review");
+
+    app.get("/high-rating-food", async (req, res) => {
+      const result = await foodCollection
+        .find()
+        .sort({ rating: -1 })
+        .limit(6)
+        .toArray();
+      res.send(result);
+    });
+    app.get("/review", async (req, res) => {
+      const result = await reviewCollection
+        .find()
+        .sort({ reviewDate: -1 })
+        .toArray();
+      res.send(result);
+    });
+
+    app.post("/review", async (req, res) => {
+      const newreview = req.body;
+      const result = await reviewCollection.insertOne(newreview);
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
@@ -35,7 +62,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World! i am");
 });
 
 app.listen(port, () => {
