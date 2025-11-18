@@ -11,7 +11,6 @@ app.use(cors());
 const uri =
   "mongodb+srv://localFoodLover:FcZ7franttWdwOqU@cluster0.wxainhe.mongodb.net/?appName=Cluster0";
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -56,7 +55,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    // await client.close();
+   
   }
 }
 run().catch(console.dir);
