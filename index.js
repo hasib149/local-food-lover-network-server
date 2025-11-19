@@ -36,9 +36,6 @@ async function run() {
       res.send(result);
     });
 
-
-    
-
     app.get("/high-rating-food/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -58,6 +55,16 @@ async function run() {
       const newreview = req.body;
       const result = await reviewCollection.insertOne(newreview);
       res.send(result);
+    });
+
+    app.get("/reviewUser", async (req, res) => {
+      const email = req.query.email;
+      const reviews = await reviewCollection
+        .find({
+          userEmail: email,
+        })
+        .toArray();
+      res.send(reviews);
     });
 
     await client.db("admin").command({ ping: 1 });
