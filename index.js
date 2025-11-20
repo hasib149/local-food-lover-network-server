@@ -26,6 +26,7 @@ async function run() {
     const db = client.db("LocalFood");
     const foodCollection = db.collection("FoodDetails");
     const reviewCollection = db.collection("review");
+    const fevoriteCollecion = db.collection("fevorite");
 
     app.get("/high-rating-food", async (req, res) => {
       const result = await foodCollection
@@ -34,6 +35,20 @@ async function run() {
         .limit(6)
         .toArray();
       res.send(result);
+    });
+
+    app.post("/favorites", async (req, res) => {
+      const favorite = req.body;
+      const result = await fevoriteCollecion.insertOne(favorite);
+      res.send(result);
+    });
+
+    app.get("/favorites", async (req, res) => {
+      const { email } = req.query;
+      const favorites = await fevoriteCollecion
+        .find({ userEmail: email })
+        .toArray();
+      res.send(favorites);
     });
 
     app.get("/high-rating-food/:id", async (req, res) => {
@@ -94,7 +109,6 @@ async function run() {
       const result = await reviewCollection.findOne(query);
       res.send(result);
     });
-    
 
     await client.db("admin").command({ ping: 1 });
     console.log(
