@@ -44,11 +44,13 @@ async function run() {
     });
 
     app.get("/favorites", async (req, res) => {
-      const { email } = req.query;
-      const favorites = await fevoriteCollecion
-        .find({ userEmail: email })
+      const email = req.query.email;
+      const reviews = await fevoriteCollecion
+        .find({
+          userEmail: email,
+        })
         .toArray();
-      res.send(favorites);
+      res.send(reviews);
     });
 
     app.get("/high-rating-food/:id", async (req, res) => {
