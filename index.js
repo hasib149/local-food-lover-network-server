@@ -4,12 +4,12 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const port = 3000;
 const cors = require("cors");
+require("dotenv").config();
 
 app.use(express.json());
 app.use(cors());
 
-const uri =
-  "mongodb+srv://localFoodLover:FcZ7franttWdwOqU@cluster0.wxainhe.mongodb.net/?appName=Cluster0";
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.wxainhe.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
