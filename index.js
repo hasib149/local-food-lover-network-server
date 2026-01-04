@@ -28,10 +28,12 @@ async function run() {
     const fevoriteCollecion = db.collection("fevorite");
 
     app.get("/high-rating-food", async (req, res) => {
-      const result = await foodCollection
+      const result = await reviewCollection
         .find()
-        .sort({ rating: -1 })
-        .limit(6)
+        .sort({
+          starRating: -1,
+        })
+        .limit(7)
         .toArray();
       res.send(result);
     });
@@ -55,7 +57,7 @@ async function run() {
     app.get("/high-rating-food/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = await foodCollection.findOne(query);
+      const result = await reviewCollection.findOne(query);
       res.send(result);
     });
 
@@ -112,13 +114,52 @@ async function run() {
     });
 
     app.get("/search", async (req, res) => {
-      const search = req.query.search;
-      const result = await reviewCollection
-        .find({ foodName: { $regex: search, $options: "i" } })
-        .toArray();
-      res.send(result);
-    });
+      try {
+        const search = req.query.search?.trim();
+        const location = req.query.location?.trim();
+        const starRating = req.query.starRating ? req.query.starRating : null;
 
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 8;
+        const skip = (page - 1) * limit;
+
+        let query = {};
+
+        if (search) {
+          query.$or = [
+            { foodName: { $regex: search, $options: "i" } },
+            { restaurant: { $regex: search, $options: "i" } },
+          ];
+        }
+
+        if (location) {
+          query.location = { $regex: location, $options: "i" };
+        }
+
+        if (starRating !== null) {
+          query.starRating = starRating;
+        }
+
+        const totalItems = await reviewCollection.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / limit);
+
+        const results = await reviewCollection
+          .find(query)
+          .skip(skip)
+          .limit(limit)
+          .toArray();
+
+        res.send({
+          page,
+          totalPages,
+          totalItems,
+          results,
+        });
+      } catch (error) {
+        console.error("Search error:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
     // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
